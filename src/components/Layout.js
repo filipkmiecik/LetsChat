@@ -28,7 +28,7 @@ export default class Layout extends Component {
         this.setState({socket})
     };
 
-    connectUser = (user) => {
+    setUser = (user) => {
         const {socket} = this.state;
         socket.emit(USER_CONNECTED, user);
         this.setState({user});

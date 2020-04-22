@@ -5,7 +5,7 @@ const createUser = ({name}) => (
         id:uuidv4(),
         name
     }
-)
+);
 
 const createMessage = ({message, sender}) =>(
     {
@@ -14,7 +14,7 @@ const createMessage = ({message, sender}) =>(
         message,
         sender
     }
-)
+);
 
 const createChat = ({messages, name, users}) =>(
     {
@@ -23,8 +23,14 @@ const createChat = ({messages, name, users}) =>(
         messages,
         users
     }
-)
+);
 
 const getTime = (date) => {
     return `${date.getHours()}:${("0"+date.getMinutes()).slice(-2)}`
-}
+};
+
+module.exports = {
+    createUser,
+    createMessage,
+    createChat
+};

@@ -1,4 +1,5 @@
-import React, { Component } from 'react'
+import React, { Component } from 'react';
+import {VERIFY_USER} from '../Events' ;
 
 export default class LoginForm extends Component {
     constructor(props) {
@@ -8,6 +9,32 @@ export default class LoginForm extends Component {
              nickname: "",
              error:""
         }
+    }
+
+    setUser = ({user, isUser}) => {
+        console.log(user, isUser);
+        if(isUser){
+            this.setError("This nickname is taken, come up with something else")
+        }
+        else{
+            this.props.setUser(user)
+        }
+    }
+
+    setError = (error) => {
+        this.setState({error})
+    }
+
+    handleSubmit = (e) => {
+        e.preventDefault()
+
+        const {socket} = this.props;
+        const {nickname} = this.state;
+        socket.emit(VERIFY_USER, nickname, this.setUser)
+    }
+
+    handleChange = (e) => {
+        this.setState({nickname: e.target.value})
     }
     
     render() {
