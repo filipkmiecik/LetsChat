@@ -4,33 +4,40 @@ const {VERIFY_USER, USER_CONNECTED, LOGOUT} = require('../Events');
 
 const {createUser, createMessage, createChat} = require('../Creators');
 
-const connectedUsers = {};
+let connectedUsers = {};
 
-socket.on(VERIFY_USER, (nickname, callback) =>{
-    if(isUser(connectedUsers, nickname)){
-        callback({isUser: true, user: null})
-    }
-    else{
-        callback({isUser: false, user: createUser({name: nickname})})
-    }
-});
+module.exports = (socket) => {
+    console.log(`Socket ID: ${socket.id}`)
 
-function addUser(userList, username){
+    socket.on(VERIFY_USER, (nickname, callback) =>{
+        if(isUser(connectedUsers, nickname)){
+            callback({isUser: true, user: null})
+        }
+        else{
+            callback({isUser: false, user: createUser({name: nickname})})
+        }
+    });
+
+    socket.on(USER_CONNECTED, (user)=> {
+        connectedUsers = addUser(connectedUsers, user)
+        socket.user = user
+
+        io.emit(USER_CONNECTED, connectedUsers)
+        console.log(connectedUsers);
+    });
+};
+function addUser(userList, user){
     let list = Object.assign({}, userList);
     list[user.name] = user;
     return list;
 }
 
-function removeUser(userList, username){
+function removeUser(userList, user){
     let list = Object.assign({}, userList);
-    delete list[username];
+    delete list[user];
     return list;
 }
 
-function isUser(userList, username){
-    return username in userList
+function isUser(userList, user){
+    return user in userList
 }
-
-module.exports = (socket) => {
-    console.log(`Socket ID: ${socket.id}`)
-};

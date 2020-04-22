@@ -8,34 +8,35 @@ export default class LoginForm extends Component {
         this.state = {
              nickname: "",
              error:""
-        }
-    }
+        };
+    };
 
     setUser = ({user, isUser}) => {
         console.log(user, isUser);
         if(isUser){
-            this.setError("This nickname is taken, come up with something else")
+            this.setError("This nickname is taken, come up with something else");
         }
         else{
-            this.props.setUser(user)
+            this.props.setUser(user);
+            this.setError("");
         }
     }
 
     setError = (error) => {
-        this.setState({error})
-    }
+        this.setState({error});
+    };
 
     handleSubmit = (e) => {
-        e.preventDefault()
+        e.preventDefault();
 
         const {socket} = this.props;
         const {nickname} = this.state;
-        socket.emit(VERIFY_USER, nickname, this.setUser)
-    }
+        socket.emit(VERIFY_USER, nickname, this.setUser);
+    };
 
     handleChange = (e) => {
         this.setState({nickname: e.target.value})
-    }
+    };
     
     render() {
         const {nickname, error} = this.state;
