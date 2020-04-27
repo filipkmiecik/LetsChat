@@ -6,7 +6,7 @@ export default class Messages extends Component {
     return (
       <div ref="container" className="thread-container">
         <div className="thread">
-          {messages.map((mes, i) => {
+          {messages.map((mes) => {
             return (
               <div
                 key={mes.id}
@@ -19,6 +19,13 @@ export default class Messages extends Component {
                   <div className="message">{mes.message}</div>
                   <div className="name">{mes.sender}</div>
                 </div>
+              </div>
+            );
+          })}
+          {typingUser.map((name) => {
+            return (
+              <div key={name} className="typing-user">
+                {`${name} is typing...`}
               </div>
             );
           })}
