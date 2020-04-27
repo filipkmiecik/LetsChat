@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { FAMenu, FASearch, FAChevronDown } from "react-icons/fa";
+import { FaAlignJustify, FaSearch, FaChevronDown } from "react-icons/fa";
 import { MdEject } from "react-icons/md";
 
 export default class Sidebar extends Component {
@@ -10,15 +10,15 @@ export default class Sidebar extends Component {
         <div className="heading">
           <div className="app-name">
             LetsChat
-            <FAChevronDown />
+            <FaChevronDown />
           </div>
           <div className="menu">
-            <FAMenu />
+            <FaAlignJustify />
           </div>
         </div>
         <div className="search">
           <i className="seatch-icon">
-            <FASearch />
+            <FaSearch />
           </i>
           <input placeholder="Search" type="text" />
           <div className="plus"></div>
