@@ -11,6 +11,14 @@ export default class Messages extends Component {
     container.scrollTop = container.scrollHeight;
   }
 
+  componentDidMount() {
+    this.scrollDown();
+  }
+
+  componentDidUpdate() {
+    this.scrollDown();
+  }
+
   render() {
     const { messages, user, typingUser } = this.props;
     return (

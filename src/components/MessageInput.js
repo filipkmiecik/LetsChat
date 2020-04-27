@@ -20,7 +20,34 @@ export default class MessageInput extends Component {
     this.props.sendMessage(this.state.message);
   };
 
-  sendTyping = () => {};
+  componentWillUnmount() {
+    this.stopCheckingTyping();
+  }
+
+  sendTyping = () => {
+    this.lastUpdateTime = Date.now();
+    if (!this.state.isTyping) {
+      this.setState({ isTyping: true });
+      this.props.sendTyping(true);
+      this.startCheckingTyping();
+    }
+  };
+
+  startCheckingTyping = () => {
+    this.typingInterval = setInterval(() => {
+      if (Date.now() - this.lastUpdateTime > 300) {
+        this.setState({ isTyping: false });
+        this.stopCheckingTyping();
+      }
+    }, 300);
+  };
+
+  stopCheckingTyping = () => {
+    if (this.typingInterval) {
+      clearInterval(this.typingInterval);
+      this.props.sendTyping(false);
+    }
+  };
 
   render() {
     const { message } = this.state;
