@@ -1,5 +1,8 @@
 import React, { Component } from "react";
 import Sidebar from "./Sidebar";
+import ChatHeading from "./ChatHeading";
+import Messages from "./Messages";
+import MessageInput from "./MessageInput";
 import {
   COMMUNITY_CHAT,
   MESSAGE_RECEIVED,
@@ -33,21 +36,20 @@ export default class ChatContainer extends Component {
     const newChats = reset ? [chat] : [...chats, chat];
     this.setState({ chats: newChats });
 
-    const messageEvent = `${MESSAGE_RECEIVED}-${chat - id}}`;
-    const typingEvent = `${TYPING}-${chat - id}}`;
+    const messageEvent = `${MESSAGE_RECEIVED}-${chat.id}}`;
+    const typingEvent = `${TYPING}-${chat.id}}`;
 
     socket.on(typingEvent);
-    socket.on(messageEvent, this.addMessageToChat(chatId));
-
-    addMessageToChat = (chatId) => {
-      return (message) => {
-        const { chats } = this.state;
-        let newChats = chats.map((chat) => {
-          if (chat.id === chatId) chat.messages.push(message);
-          return chat;
-        });
-        this.setState({ chats: newChats });
-      };
+    socket.on(messageEvent, this.addMessageToChat(chat.id));
+  };
+  addMessageToChat = (chatId) => {
+    return (message) => {
+      const { chats } = this.state;
+      let newChats = chats.map((chat) => {
+        if (chat.id === chatId) chat.messages.push(message);
+        return chat;
+      });
+      this.setState({ chats: newChats });
     };
   };
 
