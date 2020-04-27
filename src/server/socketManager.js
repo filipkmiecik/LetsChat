@@ -19,6 +19,8 @@ let communityChat = createChat();
 module.exports = (socket) => {
   console.log(`Socket ID: ${socket.id}`);
 
+  let sendMessageToChat;
+
   socket.on(VERIFY_USER, (nickname, callback) => {
     if (isUser(connectedUsers, nickname)) {
       callback({ isUser: true, user: null });
@@ -30,6 +32,8 @@ module.exports = (socket) => {
   socket.on(USER_CONNECTED, (user) => {
     connectedUsers = addUser(connectedUsers, user);
     socket.user = user;
+
+    sendMessageToChat = sendMessageToChat(user.name);
 
     io.emit(USER_CONNECTED, connectedUsers);
     console.log(connectedUsers);
@@ -50,6 +54,9 @@ module.exports = (socket) => {
 
   socket.on(COMMUNITY_CHAT, (callback) => {
     callback(communityChat);
+  });
+  socket.on(MESSAGE_SENT, ({ chatId, message }) => {
+    sendMessageToChatFromUser(chatId, message);
   });
 };
 

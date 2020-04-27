@@ -1,6 +1,16 @@
 import React, { Component } from "react";
 
 export default class Messages extends Component {
+  constructor(props) {
+    super(props);
+
+    this.scrollDown = this.scrollDown.bind(this);
+  }
+  scrollDown() {
+    const { container } = this.refs;
+    container.scrollTop = container.scrollHeight;
+  }
+
   render() {
     const { messages, user, typingUser } = this.props;
     return (
