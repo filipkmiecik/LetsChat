@@ -8,6 +8,7 @@ const {
   COMMUNITY_CHAT,
   MESSAGE_RECEIVED,
   MESSAGE_SENT,
+  TYPING,
 } = require("../Events");
 
 const { createUser, createMessage, createChat } = require("../Creators");
@@ -19,7 +20,8 @@ let communityChat = createChat();
 module.exports = (socket) => {
   console.log(`Socket ID: ${socket.id}`);
 
-  let sendMessageToChat;
+  let sendMessageToChatFromUser;
+  let sendTypingFromUser;
 
   socket.on(VERIFY_USER, (nickname, callback) => {
     if (isUser(connectedUsers, nickname)) {
@@ -33,7 +35,8 @@ module.exports = (socket) => {
     connectedUsers = addUser(connectedUsers, user);
     socket.user = user;
 
-    sendMessageToChat = sendMessageToChat(user.name);
+    sendTypingFromUser = sendTypingToChat(user.name);
+    sendMessageToChatFromUser = sendMessageToChat(user.name);
 
     io.emit(USER_CONNECTED, connectedUsers);
     console.log(connectedUsers);
@@ -58,7 +61,16 @@ module.exports = (socket) => {
   socket.on(MESSAGE_SENT, ({ chatId, message }) => {
     sendMessageToChatFromUser(chatId, message);
   });
+  socket.on(TYPING, ({ chatId, isTyping }) => {
+    sendTypingFromUser(chatId, isTyping);
+  });
 };
+
+function sendTypingToChat(user) {
+  return (chatId, isTyping) => {
+    io.emit(`${TYPING}-${chatId}`, { user, isTyping });
+  };
+}
 
 function sendMessageToChat(sender) {
   return (chatId, message) => {

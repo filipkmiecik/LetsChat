@@ -34,12 +34,15 @@ export default class ChatContainer extends Component {
     const { chats } = this.state;
 
     const newChats = reset ? [chat] : [...chats, chat];
-    this.setState({ chats: newChats });
+    this.setState({
+      chats: newChats,
+      activeChat: reset ? chat : this.state.activeChat,
+    });
 
     const messageEvent = `${MESSAGE_RECEIVED}-${chat.id}}`;
     const typingEvent = `${TYPING}-${chat.id}}`;
 
-    socket.on(typingEvent);
+    socket.on(typingEvent, this.updateTypingInChat(chat.id));
     socket.on(messageEvent, this.addMessageToChat(chat.id));
   };
   addMessageToChat = (chatId) => {
@@ -50,6 +53,26 @@ export default class ChatContainer extends Component {
         return chat;
       });
       this.setState({ chats: newChats });
+    };
+  };
+
+  updateTypingInChat = (chatId) => {
+    return ({ isTyping, user }) => {
+      if (user !== this.props.user.name) {
+        const { chats } = this.state;
+
+        let newChats = chats.map((chat) => {
+          if (chat.id === chatId) {
+            if (isTyping && !chat.typingUser.includes(user)) {
+              chat.typingUser.push(user);
+            } else if (!isTyping && chat.typingUser.includes(user)) {
+              chat.typingUser = chat.typingUser.filter((u) => u !== user);
+            }
+          }
+          return chat;
+        });
+        this.setState({ chats: newChats });
+      }
     };
   };
 
