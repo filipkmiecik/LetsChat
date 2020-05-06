@@ -1,13 +1,19 @@
-# LetsChat
+##ReactJS and Socket.io Chat App Tutorial
 
-Chatting app created using ReactJS, Socket.io and Typescript
 
-## Future features
+This is the code from a tutorial done on youtube [here](https://www.youtube.com/playlist?list=PLfUtdEcvGHFHdOYFXj4cY6ZIFkSp6MOuY).
 
-* Choosing nicknames
+###Getting Started
 
-* Support for creating and joining individual rooms
+First you'll need to fork or download the respository.
 
-* Messaging individual people
+Then in terminal you'll install the node modules
 
-* Customizing colors of channels (something like in Messenger)
+``` npm install ```
+
+Then you can run it using 
+
+``` npm run react ``` to start React dev server.
+``` npm run server ``` to start NodeJS Socket.io server.
+
+

@@ -12,11 +12,7 @@ const createMessage = ({ message = "", sender = "" } = {}) => ({
   sender,
 });
 
-const createChat = ({
-  messages = [],
-  name = "Community",
-  users = [],
-} = {}) => ({
+const createChat = ({ messages = [], name = "Everyone", users = [] } = {}) => ({
   id: uuidv4(),
   name,
   messages,
@@ -29,7 +25,7 @@ const getTime = (date) => {
 };
 
 module.exports = {
-  createUser,
   createMessage,
   createChat,
+  createUser,
 };

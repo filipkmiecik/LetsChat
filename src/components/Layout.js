@@ -1,11 +1,10 @@
 import React, { Component } from "react";
 import io from "socket.io-client";
-import LoginForm from "./LoginForm";
-import ChatContainer from "./ChatContainer";
 import { USER_CONNECTED, LOGOUT } from "../Events";
+import LoginForm from "./LoginForm";
+import ChatContainer from "./chats/ChatContainer";
 
-const socketUrl = "http://192.168.1.110:3001";
-
+const socketUrl = "http://localhost:3001";
 export default class Layout extends Component {
   constructor(props) {
     super(props);
@@ -17,14 +16,16 @@ export default class Layout extends Component {
   }
 
   componentWillMount() {
-    this.loadSocket();
+    this.initSocket();
   }
 
-  loadSocket = () => {
+  initSocket = () => {
     const socket = io(socketUrl);
+
     socket.on("connect", () => {
       console.log("Connected");
     });
+
     this.setState({ socket });
   };
 

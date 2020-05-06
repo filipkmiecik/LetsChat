@@ -6,7 +6,7 @@ const {
   USER_DISCONNECTED,
   LOGOUT,
   COMMUNITY_CHAT,
-  MESSAGE_RECEIVED,
+  MESSAGE_RECIEVED,
   MESSAGE_SENT,
   TYPING,
 } = require("../Events");
@@ -17,10 +17,11 @@ let connectedUsers = {};
 
 let communityChat = createChat();
 
-module.exports = (socket) => {
-  console.log(`Socket ID: ${socket.id}`);
+module.exports = function (socket) {
+  console.log("Socket Id:" + socket.id);
 
   let sendMessageToChatFromUser;
+
   let sendTypingFromUser;
 
   socket.on(VERIFY_USER, (nickname, callback) => {
@@ -35,8 +36,8 @@ module.exports = (socket) => {
     connectedUsers = addUser(connectedUsers, user);
     socket.user = user;
 
-    sendTypingFromUser = sendTypingToChat(user.name);
     sendMessageToChatFromUser = sendMessageToChat(user.name);
+    sendTypingFromUser = sendTypingToChat(user.name);
 
     io.emit(USER_CONNECTED, connectedUsers);
     console.log(connectedUsers);
@@ -47,20 +48,24 @@ module.exports = (socket) => {
       connectedUsers = removeUser(connectedUsers, socket.user.name);
 
       io.emit(USER_DISCONNECTED, connectedUsers);
+      console.log("Disconnect", connectedUsers);
     }
   });
 
   socket.on(LOGOUT, () => {
     connectedUsers = removeUser(connectedUsers, socket.user.name);
     io.emit(USER_DISCONNECTED, connectedUsers);
+    console.log("Disconnect", connectedUsers);
   });
 
   socket.on(COMMUNITY_CHAT, (callback) => {
     callback(communityChat);
   });
+
   socket.on(MESSAGE_SENT, ({ chatId, message }) => {
     sendMessageToChatFromUser(chatId, message);
   });
+
   socket.on(TYPING, ({ chatId, isTyping }) => {
     sendTypingFromUser(chatId, isTyping);
   });
@@ -75,23 +80,24 @@ function sendTypingToChat(user) {
 function sendMessageToChat(sender) {
   return (chatId, message) => {
     io.emit(
-      `${MESSAGE_RECEIVED}=${chatId}`,
+      `${MESSAGE_RECIEVED}-${chatId}`,
       createMessage({ message, sender })
     );
   };
 }
+
 function addUser(userList, user) {
-  let list = Object.assign({}, userList);
-  list[user.name] = user;
-  return list;
+  let newList = Object.assign({}, userList);
+  newList[user.name] = user;
+  return newList;
 }
 
-function removeUser(userList, user) {
-  let list = Object.assign({}, userList);
-  delete list[user];
-  return list;
+function removeUser(userList, username) {
+  let newList = Object.assign({}, userList);
+  delete newList[username];
+  return newList;
 }
 
-function isUser(userList, user) {
-  return user in userList;
+function isUser(userList, username) {
+  return username in userList;
 }
