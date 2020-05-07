@@ -1,15 +1,15 @@
 import React, { Component } from "react";
-import Sidebar from "./Sidebar";
-import ChatHeading from "./ChatHeading";
-import Messages from "./Messages";
-import MessageInput from "./MessageInput";
+import SideBar from "./SideBar";
 import {
   COMMUNITY_CHAT,
-  MESSAGE_RECEIVED,
   MESSAGE_SENT,
+  MESSAGE_RECEIVED,
   TYPING,
   PRIVATE_MESSAGE,
-} from "../Events";
+} from "../../Events";
+import ChatHeading from "./ChatHeading";
+import Messages from "../messages/Messages";
+import MessageInput from "../messages/MessageInput";
 
 export default class ChatContainer extends Component {
   constructor(props) {
@@ -27,7 +27,6 @@ export default class ChatContainer extends Component {
   }
 
   initSocket(socket) {
-    const { user } = this.props;
     socket.emit(COMMUNITY_CHAT, this.resetChat);
     socket.on(PRIVATE_MESSAGE, this.addChat);
     socket.on("connect", () => {
@@ -35,10 +34,9 @@ export default class ChatContainer extends Component {
     });
   }
 
-  sendOpenPrivateMessage = (receiver) => {
+  sendOpenPrivateMessage = (reciever) => {
     const { socket, user } = this.props;
-    const { activeChat } = this.state;
-    socket.emit(PRIVATE_MESSAGE, { receiver, sender: user.name, activeChat });
+    socket.emit(PRIVATE_MESSAGE, { reciever, sender: user.name });
   };
 
   resetChat = (chat) => {
@@ -55,12 +53,13 @@ export default class ChatContainer extends Component {
       activeChat: reset ? chat : this.state.activeChat,
     });
 
-    const messageEvent = `${MESSAGE_RECEIVED}-${chat.id}}`;
-    const typingEvent = `${TYPING}-${chat.id}}`;
+    const messageEvent = `${MESSAGE_RECEIVED}-${chat.id}`;
+    const typingEvent = `${TYPING}-${chat.id}`;
 
     socket.on(typingEvent, this.updateTypingInChat(chat.id));
     socket.on(messageEvent, this.addMessageToChat(chat.id));
   };
+
   addMessageToChat = (chatId) => {
     return (message) => {
       const { chats } = this.state;
@@ -68,6 +67,7 @@ export default class ChatContainer extends Component {
         if (chat.id === chatId) chat.messages.push(message);
         return chat;
       });
+
       this.setState({ chats: newChats });
     };
   };
@@ -79,10 +79,10 @@ export default class ChatContainer extends Component {
 
         let newChats = chats.map((chat) => {
           if (chat.id === chatId) {
-            if (isTyping && !chat.typingUser.includes(user)) {
-              chat.typingUser.push(user);
-            } else if (!isTyping && chat.typingUser.includes(user)) {
-              chat.typingUser = chat.typingUser.filter((u) => u !== user);
+            if (isTyping && !chat.typingUsers.includes(user)) {
+              chat.typingUsers.push(user);
+            } else if (!isTyping && chat.typingUsers.includes(user)) {
+              chat.typingUsers = chat.typingUsers.filter((u) => u !== user);
             }
           }
           return chat;
@@ -105,16 +105,15 @@ export default class ChatContainer extends Component {
   setActiveChat = (activeChat) => {
     this.setState({ activeChat });
   };
-
   render() {
     const { user, logout } = this.props;
     const { chats, activeChat } = this.state;
     return (
       <div className="container">
-        <Sidebar
+        <SideBar
           logout={logout}
-          user={user}
           chats={chats}
+          user={user}
           activeChat={activeChat}
           setActiveChat={this.setActiveChat}
           onSendPrivateMessage={this.sendOpenPrivateMessage}
@@ -126,7 +125,7 @@ export default class ChatContainer extends Component {
               <Messages
                 messages={activeChat.messages}
                 user={user}
-                typingUser={activeChat.typingUser}
+                typingUsers={activeChat.typingUsers}
               />
               <MessageInput
                 sendMessage={(message) => {
@@ -139,7 +138,7 @@ export default class ChatContainer extends Component {
             </div>
           ) : (
             <div className="chat-room choose">
-              <h3>Select a chat</h3>
+              <h3>Choose a chat!</h3>
             </div>
           )}
         </div>

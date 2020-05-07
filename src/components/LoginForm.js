@@ -13,7 +13,7 @@ export default class LoginForm extends Component {
 
   setUser = ({ user, isUser }) => {
     if (isUser) {
-      this.setError("Sorry, this nickname is already taken by someone else");
+      this.setError("Sorry, this nickname is already taken");
     } else {
       this.setError("");
       this.props.setUser(user);
@@ -41,7 +41,7 @@ export default class LoginForm extends Component {
       <div className="login">
         <form onSubmit={this.handleSubmit} className="login-form">
           <label htmlFor="nickname">
-            <h2>Choose a nickname</h2>
+            <h2>Choose your nickname</h2>
           </label>
           <input
             ref={(input) => {

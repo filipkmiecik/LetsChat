@@ -6,7 +6,7 @@ const {
   USER_DISCONNECTED,
   LOGOUT,
   COMMUNITY_CHAT,
-  MESSAGE_RECIEVED,
+  MESSAGE_RECEIVED,
   MESSAGE_SENT,
   TYPING,
   PRIVATE_MESSAGE,
@@ -75,19 +75,15 @@ module.exports = function (socket) {
     sendTypingFromUser(chatId, isTyping);
   });
 
-  socket.on(PRIVATE_MESSAGE, ({ receiver, sender, activeChat }) => {
-    if (receiver in connectedUsers) {
-      const receiverSocket = connectedUsers[receiver].socketId;
-      if (activeChat == null || activeChat.id === communityChat.id) {
-        const newChat = createChat({
-          name: `${receiver} and ${sender}`,
-          users: [receiver, sender],
-        });
-        socket.to(receiverSocket).emit(PRIVATE_MESSAGE, newChat);
-        socket.emit(PRIVATE_MESSAGE, newChat);
-      } else {
-        socket.to(receiverSocket).emit(PRIVATE_MESSAGE, activeChat);
-      }
+  socket.on(PRIVATE_MESSAGE, ({ reciever, sender }) => {
+    if (reciever in connectedUsers) {
+      const newChat = createChat({
+        name: `${reciever}&${sender}`,
+        users: [reciever, sender],
+      });
+      const recieverSocket = connectedUsers[reciever].socketId;
+      socket.to(recieverSocket).emit(PRIVATE_MESSAGE, newChat);
+      socket.emit(PRIVATE_MESSAGE, newChat);
     }
   });
 };
@@ -101,7 +97,7 @@ function sendTypingToChat(user) {
 function sendMessageToChat(sender) {
   return (chatId, message) => {
     io.emit(
-      `${MESSAGE_RECIEVED}-${chatId}`,
+      `${MESSAGE_RECEIVED}-${chatId}`,
       createMessage({ message, sender })
     );
   };
