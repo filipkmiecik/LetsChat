@@ -4,8 +4,8 @@ Chatting app created using ReactJS, Socket.io and Typescript
 
 ## Future features
 
-*Choosing nicknames
-*Messaging individual people
+- Choosing nicknames
+- Messaging individual people
 
 ## Future features
 
