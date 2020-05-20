@@ -1,4 +1,4 @@
-const io = require("./server.js").io;
+const io = require("./index.js").io;
 
 const {
   VERIFY_USER,
@@ -6,17 +6,17 @@ const {
   USER_DISCONNECTED,
   LOGOUT,
   COMMUNITY_CHAT,
-  MESSAGE_RECEIVED,
+  MESSAGE_RECIEVED,
   MESSAGE_SENT,
   TYPING,
   PRIVATE_MESSAGE,
 } = require("../Events");
 
-const { createUser, createMessage, createChat } = require("../Creators");
+const { createUser, createMessage, createChat } = require("../Factories");
 
 let connectedUsers = {};
 
-let communityChat = createChat();
+let communityChat = createChat({ isCommunity: true });
 
 module.exports = function (socket) {
   console.log("Socket Id:" + socket.id);
@@ -36,6 +36,7 @@ module.exports = function (socket) {
     }
   });
 
+  //User Connects with username
   socket.on(USER_CONNECTED, (user) => {
     user.socketId = socket.id;
     connectedUsers = addUser(connectedUsers, user);
@@ -75,15 +76,19 @@ module.exports = function (socket) {
     sendTypingFromUser(chatId, isTyping);
   });
 
-  socket.on(PRIVATE_MESSAGE, ({ reciever, sender }) => {
+  socket.on(PRIVATE_MESSAGE, ({ reciever, sender, activeChat }) => {
     if (reciever in connectedUsers) {
-      const newChat = createChat({
-        name: `${reciever}&${sender}`,
-        users: [reciever, sender],
-      });
       const recieverSocket = connectedUsers[reciever].socketId;
-      socket.to(recieverSocket).emit(PRIVATE_MESSAGE, newChat);
-      socket.emit(PRIVATE_MESSAGE, newChat);
+      if (activeChat === null || activeChat.id === communityChat.id) {
+        const newChat = createChat({
+          name: `${reciever} and ${sender}`,
+          users: [reciever, sender],
+        });
+        socket.to(recieverSocket).emit(PRIVATE_MESSAGE, newChat);
+        socket.emit(PRIVATE_MESSAGE, newChat);
+      } else {
+        socket.to(recieverSocket).emit(PRIVATE_MESSAGE, activeChat);
+      }
     }
   });
 };
@@ -97,7 +102,7 @@ function sendTypingToChat(user) {
 function sendMessageToChat(sender) {
   return (chatId, message) => {
     io.emit(
-      `${MESSAGE_RECEIVED}-${chatId}`,
+      `${MESSAGE_RECIEVED}-${chatId}`,
       createMessage({ message, sender })
     );
   };

@@ -1,15 +1,18 @@
 import React, { Component } from "react";
-import SideBar from "./Sidebar";
+import SideBar from "../sidebar/SideBar";
 import {
   COMMUNITY_CHAT,
   MESSAGE_SENT,
-  MESSAGE_RECEIVED,
+  MESSAGE_RECIEVED,
   TYPING,
   PRIVATE_MESSAGE,
+  USER_CONNECTED,
+  USER_DISCONNECTED,
 } from "../../Events";
 import ChatHeading from "./ChatHeading";
 import Messages from "../messages/Messages";
 import MessageInput from "../messages/MessageInput";
+import { values } from "lodash";
 
 export default class ChatContainer extends Component {
   constructor(props) {
@@ -17,6 +20,7 @@ export default class ChatContainer extends Component {
 
     this.state = {
       chats: [],
+      users: [],
       activeChat: null,
     };
   }
@@ -26,17 +30,31 @@ export default class ChatContainer extends Component {
     this.initSocket(socket);
   }
 
+  componentWillUnmount() {
+    const { socket } = this.props;
+    socket.off(PRIVATE_MESSAGE);
+    socket.off(USER_CONNECTED);
+    socket.off(USER_DISCONNECTED);
+  }
+
   initSocket(socket) {
     socket.emit(COMMUNITY_CHAT, this.resetChat);
     socket.on(PRIVATE_MESSAGE, this.addChat);
     socket.on("connect", () => {
       socket.emit(COMMUNITY_CHAT, this.resetChat);
     });
+    socket.on(USER_CONNECTED, (users) => {
+      this.setState({ users: values(users) });
+    });
+    socket.on(USER_DISCONNECTED, (users) => {
+      this.setState({ users: values(users) });
+    });
   }
 
   sendOpenPrivateMessage = (reciever) => {
     const { socket, user } = this.props;
-    socket.emit(PRIVATE_MESSAGE, { reciever, sender: user.name });
+    const { activeChat } = this.state;
+    socket.emit(PRIVATE_MESSAGE, { reciever, sender: user.name, activeChat });
   };
 
   resetChat = (chat) => {
@@ -53,7 +71,7 @@ export default class ChatContainer extends Component {
       activeChat: reset ? chat : this.state.activeChat,
     });
 
-    const messageEvent = `${MESSAGE_RECEIVED}-${chat.id}`;
+    const messageEvent = `${MESSAGE_RECIEVED}-${chat.id}`;
     const typingEvent = `${TYPING}-${chat.id}`;
 
     socket.on(typingEvent, this.updateTypingInChat(chat.id));
@@ -107,13 +125,14 @@ export default class ChatContainer extends Component {
   };
   render() {
     const { user, logout } = this.props;
-    const { chats, activeChat } = this.state;
+    const { chats, activeChat, users } = this.state;
     return (
       <div className="container">
         <SideBar
           logout={logout}
           chats={chats}
           user={user}
+          users={users}
           activeChat={activeChat}
           setActiveChat={this.setActiveChat}
           onSendPrivateMessage={this.sendOpenPrivateMessage}
@@ -138,7 +157,7 @@ export default class ChatContainer extends Component {
             </div>
           ) : (
             <div className="chat-room choose">
-              <h3>Choose a chat</h3>
+              <h3>Choose a chat!</h3>
             </div>
           )}
         </div>
