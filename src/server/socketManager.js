@@ -12,7 +12,7 @@ const {
   PRIVATE_MESSAGE,
 } = require("../Events");
 
-const { createUser, createMessage, createChat } = require("../Factories");
+const { createUser, createMessage, createChat } = require("../Factories.js");
 
 let connectedUsers = {};
 
