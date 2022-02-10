@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "concurrently": "^3.5.0",
-    "node-sass": "^4.7.2",
+    "node-sass": "^7.0.0",
     "nodemon": "^1.11.0"
   }
 }
